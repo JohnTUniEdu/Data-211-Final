@@ -1,0 +1,63 @@
+---
+title: "Final Project"
+author: "John Clark"
+date: "2024-12-11"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(readxl)
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+library(plotly)
+library(DT)
+library(tm)
+library(wordcloud)
+library(readxl)
+library(lubridate)
+```
+
+
+Format the data.
+
+```{r}
+df = read_excel("C:/Users/pokej/OneDrive/Data211 Fall 2024/Week Final/Final Project Data.xlsx")
+
+df$Start <- format(df$Start, "%H:%M")
+df$Stop <- format(df$Stop, "%H:%M")
+df$Awake <- format(df$Awake, "%H:%M")
+df$Length <- format(df$Length, "%H:%M")
+df$`Deep Sleep` <- format(df$`Deep Sleep`, "%H:%M")
+df <- df[-c(15,16),]
+df$Day <- as.numeric(df$Day)
+
+my_func <- function(user_str) {
+  number <- as.numeric(substr(user_str, 1, 2))
+  number
+  number <- number + (as.numeric(substr(user_str, 4, 5)) * 5/300)
+  return (number)
+}
+
+for (data in 1:length(df$`Deep Sleep`)) {
+  df$`Deep Sleep`[data] <-  my_func(df$`Deep Sleep`[data])
+}
+
+df$`Deep Sleep`
+
+df <- df %>%
+  arrange(Day)
+
+ggplot(df, aes(x = Day, y=`Deep Sleep`)) +
+  geom_point() +
+  theme_minimal()
+```
+
+```{r}
+t.test(as.numeric(df$`Deep Sleep`), mu = 2.0, alternative = "greater")
+```
+
